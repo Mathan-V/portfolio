@@ -1,0 +1,92 @@
+import re
+
+with open('src/index.css', 'r') as f:
+    content = f.read()
+
+# Replace body block
+new_body = """  body {
+    background-color: #F8FAFC; /* slate-50 */
+    color: #0F172A; /* slate-900 */
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  .dark body {
+    background-color: #0A0A0B;
+    color: #F4F4F5;
+  }"""
+
+content = re.sub(r'  body\s*\{[^}]+\}', new_body, content)
+
+# update immersive cards for light mode
+new_immersive_card = """
+.immersive-card {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .immersive-card {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.immersive-card:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1), 0 0 30px -10px rgba(59, 130, 246, 0.15);
+}
+
+.dark .immersive-card:hover {
+  background: rgba(255, 255, 255, 0.045);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 30px -10px rgba(59, 130, 246, 0.15);
+}
+
+.immersive-panel-dark {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dark .immersive-panel-dark {
+  background: rgba(8, 8, 12, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+"""
+
+content = re.sub(r'\.immersive-card\s*\{[^}]+\}\s*\.immersive-card:hover\s*\{[^}]+\}\s*\.immersive-panel-dark\s*\{[^}]+\}', new_immersive_card.strip(), content)
+
+# update scrollbar
+new_scrollbar = """
+::-webkit-scrollbar-track {
+  background: #F8FAFC;
+}
+.dark ::-webkit-scrollbar-track {
+  background: #0A0A0B;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 9999px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+"""
+content = re.sub(r'::-webkit-scrollbar-track\s*\{[^}]+\}\s*::-webkit-scrollbar-thumb\s*\{[^}]+\}\s*::-webkit-scrollbar-thumb:hover\s*\{[^}]+\}', new_scrollbar.strip(), content)
+
+
+# make sure variant dark is included at the top
+if "@variant dark" not in content:
+    content = content.replace('@import "tailwindcss";', '@import "tailwindcss";\n@variant dark (&:where(.dark, .dark *));')
+
+with open('src/index.css', 'w') as f:
+    f.write(content)
